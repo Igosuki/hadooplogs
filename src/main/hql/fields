@@ -1,0 +1,3 @@
+elect provider, flowtype, delivery, status, count(distinct publisher_doc_id), min(xp) as min_xp,max(xp) as max_xp
+from npl_stat group by status, delivery, provider, flowtype
+order by provider,flowtype,delivery;

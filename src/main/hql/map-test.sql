@@ -1,0 +1,2 @@
+add file /Users/hadoophive/IdeaProjects/normalizeFiles/src/main/groovy/map.groovy;
+FROM NPL_STAT select transform(provider, flowtype, delivery, status, status_count, min_xp,max_xp)  USING 'map.groovy' AS a, b,c,d,e,f,g;

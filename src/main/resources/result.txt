@@ -1,0 +1,6 @@
+ieee	conference	WEEK10A	PRODUCED	1430	XP031928511	XP031929940
+ieee	conference	WEEK17A	IGNORED	170	null	null
+ieee	conference	WEEK17A	IN	5757	null	null
+ieee	conference	WEEK17A	NOPDF	4494	null	null
+ieee	conference	WEEK17A	OK	1093	null	null
+
