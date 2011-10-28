@@ -2,7 +2,7 @@
 
 def inFile = "."
 def outFile = "."
-def files = new File("${inFile}/REPORT").listFiles()
+def files = new File("${this.args[0]}").listFiles()
 def intermFiles = []
 def inFiles = []
 def loaderFiles = []
