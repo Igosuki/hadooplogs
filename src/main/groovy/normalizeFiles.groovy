@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 
 def inFile = "."
-def outFile = "."
+def outFile = "./OUT"
 def files = new File("${inFile}/REPORT").listFiles()
 def intermFiles = []
 def inFiles = []

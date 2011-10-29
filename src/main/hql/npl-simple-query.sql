@@ -3,3 +3,4 @@ SELECT provider, flowtype, delivery, status, count(distinct publisher_doc_id), m
 FROM npl_normalized_log 
 GROUP BY status, delivery, provider, flowtype
 ORDER BY provider,flowtype,delivery;
+
