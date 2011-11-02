@@ -1,2 +1,5 @@
 .DS_Store
 derby.log
+.classpath
+.project
+.settings
