@@ -16,6 +16,7 @@ import javax.naming.directory.NoSuchAttributeException;
 import load.hadoop.writable.EpoWritable;
 import load.model.EpoBaseEvent;
 import load.model.EventException;
+import load.model.EventFactory;
 import load.model.EventTemplate;
 
 import org.apache.commons.logging.Log;
@@ -70,17 +71,17 @@ public class EpoSerDeFilter implements SerDe {
 	     * names and mapping them to the LWES attributes they refer to.
 	     * 
 	     * @param conf
-	     * @param tbl
+	     * @param props
 	     * @throws SerDeException
 	     */
 	    @Override
-	    public void initialize(Configuration conf, Properties tbl)
+	    public void initialize(Configuration conf, Properties props)
 	            throws SerDeException {
 	        LOG.debug("initialize, logging to " + EpoBaseEvent.class.getName());
 
 	        // Get column names and sort order
-	        String columnNameProperty = tbl.getProperty("columns");
-	        String columnTypeProperty = tbl.getProperty("columns.types");
+	        String columnNameProperty = props.getProperty("columns");
+	        String columnTypeProperty = props.getProperty("columns.types");
 	        if (columnNameProperty.length() == 0) {
 	            columnNames = new ArrayList<String>();
 	        } else {
@@ -93,12 +94,12 @@ public class EpoSerDeFilter implements SerDe {
 	        }
 	        assert (columnNames.size() == columnTypes.size());
 
-	        for (String s : tbl.stringPropertyNames()) {
-	            LOG.debug("Property: " + s + " value " + tbl.getProperty(s));
+	        for (String s : props.stringPropertyNames()) {
+	            LOG.debug("Property: " + s + " value " + props.getProperty(s));
 	        }
 
-	        if (tbl.containsKey("epo.event_name")) {
-	            allEpoBaseEventName = tbl.getProperty("epo.event_name");
+	        if (props.containsKey("epo.event_name")) {
+	            allEpoBaseEventName = props.getProperty("epo.event_name");
 	        }
 
 	        // Create row related objects
@@ -112,19 +113,20 @@ public class EpoSerDeFilter implements SerDe {
 	        }
 
 	        // Get the sort order
-	        String columnSortOrder = tbl.getProperty(Constants.SERIALIZATION_SORT_ORDER);
+	        String columnSortOrder = props.getProperty(Constants.SERIALIZATION_SORT_ORDER);
 	        columnSortOrderIsDesc = new boolean[columnNames.size()];
 	        for (int i = 0; i < columnSortOrderIsDesc.length; i++) {
 	            columnSortOrderIsDesc[i] = (columnSortOrder != null && columnSortOrder.charAt(i) == '-');
 	        }
-
+	        EventFactory ef = new EventFactory();
+	        this.template = ef.createTemplate(allEpoBaseEventName); 
 	        // take each column and find what it maps to into the EpoBaseEvent list
 	        int colNumber = 0;
 	        for (String columnName : columnNames) {
 	            String fieldName;
 	            String EpoBaseEventName;
 
-	            if (!tbl.containsKey(columnName) && allEpoBaseEventName == null) {
+	            if (!props.containsKey(columnName) && allEpoBaseEventName == null) {
 	                LOG.warn("Column " + columnName
 	                        + " is not mapped to an EpoBaseEventName:field through SerDe Properties");
 	                continue;
@@ -134,7 +136,7 @@ public class EpoSerDeFilter implements SerDe {
 	                fieldName = columnName;
 	            } else {
 	                // if key is there
-	                String fullEpoBaseEventField = tbl.getProperty(columnName);
+	                String fullEpoBaseEventField = props.getProperty(columnName);
 	                String[] parts = fullEpoBaseEventField.split("::");
 
 	                // we are renaming the column
@@ -288,14 +290,14 @@ public class EpoSerDeFilter implements SerDe {
 
 	    @Override
 	    public ObjectInspector getObjectInspector() throws SerDeException {
-	        LOG.debug("JournalSerDe::getObjectInspector()");
+	        LOG.debug("Epo SerDe : getObjectInspector()");
 	        return rowObjectInspector;
 	    }
 
 	    @Override
 	    public Class<? extends Writable> getSerializedClass() {
-	        LOG.debug("JournalSerDe::getSerializedClass()");
-	        return BytesWritable.class;
+	        LOG.debug("Epo SerDe : getSerializedClass()");
+	        return EpoWritable.class;
 	    }
 	    /**
 	     * Serializes an EpoBaseEvent to a writable object that can be handled by hadoop
