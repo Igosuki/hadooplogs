@@ -1,15 +1,14 @@
 #!/usr/bin/env groovy
 
-def inFile = "."
-def outFile = "./OUT"
-def files = new File("${inFile}/REPORT").listFiles()
+def inFile = "/Users/hadoophive/IdeaProjects/hadooplogs/src/main/resources/"
+def outFile = "/Users/hadoophive/IdeaProjects/hadooplogs/src/main/resources/OUT"
+def files = new File("${inFile}/").listFiles()
 def intermFiles = []
 def inFiles = []
 def loaderFiles = []
 
 files.each {  file ->
     def name = file.name
-
     if (name.endsWith('interm_in.csv')) {
         intermFiles << file
     }   else if (name.endsWith('_loader.csv')) {
@@ -19,10 +18,12 @@ files.each {  file ->
     }
 }
 
+println files
+
 def numFile =0
 inFiles.each { inF ->
     def fileName = inF.name
-     println "Elaborating file: ${fileName}"
+    println "Elaborating file: ${fileName}"
     def provider = getProviderFromFileName(fileName)
     def flowType = getFLowTypeFromFileName(fileName)
     InputStream inputStream = inF.newInputStream()
@@ -38,10 +39,11 @@ inFiles.each { inF ->
             def batchId = tokens[1].toUpperCase()
             def timestamp = tokens[2].toUpperCase()
             def deliveryInfo = getDeliveryInfoFromLine(line)
+            def deliveryId = "${provider}_${flowType}_${deliveryInfo}"
             def year =  getYearFromLine(line)
             def month = getMonthFromLine(line)
             // (provider string, flowTYpe string,publisher_doc_id string, batch_id string, status string, tstamp string, delivery string , year string, month string,XP string)
-            def newLine = "${provider};${flowType};${pubDocId};${batchId};IN;${timestamp};${deliveryInfo};${year};${month};null\n"
+            def newLine = "${deliveryId};${provider};${flowType};${pubDocId};${batchId};IN;${timestamp};${deliveryInfo};${year};${month};null\n"
             output.append(newLine)
 
         }
@@ -73,10 +75,11 @@ intermFiles.each {  intermF ->
             def status = tokens[2]?.toUpperCase()
             def timestamp = tokens[3]?.toUpperCase()
             def deliveryInfo = getDeliveryInfoFromLine(line)
+            def deliveryId = "${provider}_${flowType}_${deliveryInfo}"
             def year =  getYearFromLine(line)
             def month = getMonthFromLine(line)
             // (provider string, flowTYpe string,publisher_doc_id string, batch_id string, status string, tstamp string, delivery string , year string, month string,XP string)
-            def newLine = "${provider};${flowType};${pubDocId};${batchId==null?"NULL":batchId};${status};${timestamp};${deliveryInfo};${year};${month};null\n"
+            def newLine = "${deliveryId};${provider};${flowType};${pubDocId};${batchId==null?"NULL":batchId};${status};${timestamp};${deliveryInfo};${year};${month};null\n"
             output.append(newLine)
 
         }
@@ -112,8 +115,9 @@ loaderFiles?.each {  loaderf ->
             def deliveryInfo = getDeliveryInfoFromLine(line)
             def year =  getYearFromLine(line)
             def month = getMonthFromLine(line)
+            def deliveryId = "${provider}_${flowType}_${deliveryInfo}"
             // (provider string, flowTYpe string,publisher_doc_id string, batch_id string, status string, tstamp string, delivery string , year string, month string,XP string)
-            def newLine = "${provider};${flowType};${pubDocId};${batchId};PRODUCED;${timeStamp};${deliveryInfo};${year};${month};${XP}\n"
+            def newLine = "${deliveryId};${provider};${flowType};${pubDocId};${batchId};PRODUCED;${timeStamp};${deliveryInfo};${year};${month};${XP}\n"
             output.append(newLine)
 
         }
@@ -126,6 +130,56 @@ loaderFiles?.each {  loaderf ->
 
 }
 
+numFile = 0
+Map<String, List> filesTxtBbl = new HashMap<String, List>()
+loaderFiles?.each { file ->
+    def fileName = file.name
+    def tks = fileName.split("_")
+    def provider = tks[0].tokenize(".")[0]
+    def flowType = tks[0].tokenize(".")[1]
+    println "Elaborating file: ${file}"
+    InputStream inputStream = file.newInputStream()
+    Reader reader = inputStream.newReader('UTF-8')
+    if (reader.ready()) reader.readLine()
+
+    try {
+        while(reader.ready()) {
+            def line = reader.readLine()
+            def tokens = getTokensFromLine(line)
+            def pubDocId = tokens[0]
+            def XP = tokens[1]
+            def batchId = tokens[2]
+            def timeStamp = tokens[3]
+            def deliveryInfo = getDeliveryInfoFromLine(line)
+            def year =  getYearFromLine(line)
+            def month = getMonthFromLine(line)
+            def deliveryId = "${provider}_${flowType}_${deliveryInfo}"
+            def list = filesTxtBbl.get(deliveryId)
+            if (list) {
+                if (batchId.toUpperCase().endsWith("XML"))
+                    if (!list.contains(batchId))
+                        list << batchId
+            } else {
+                if (batchId.toUpperCase().endsWith("XML")) {
+                    list = new ArrayList()
+                    list <<  batchId
+                    filesTxtBbl.put(deliveryId, list)
+                }
+            }
+
+        }
+    }   catch(e) {
+
+    } finally {
+        reader.close()
+    }
+}
+
+File output = new  File("${outFile}/filesTxtBbl-${numFile}.csv")
+if (output.exists()) output.delete()
+filesTxtBbl.collect { key, value ->
+     output.append()
+}
 def getTokensFromFileName(fileName) {
     fileName.split("_")
 }
