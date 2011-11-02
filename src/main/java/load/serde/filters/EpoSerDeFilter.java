@@ -74,7 +74,7 @@ public class EpoSerDeFilter implements SerDe {
 	    @Override
 	    public void initialize(Configuration conf, Properties tbl)
 	            throws SerDeException {
-	        LOG.debug("initialize, logging to " + EpoBaseEventSerDe.class.getName());
+	        LOG.debug("initialize, logging to " + EpoBaseEvent.class.getName());
 
 	        // Get column names and sort order
 	        String columnNameProperty = tbl.getProperty("columns");
@@ -175,10 +175,7 @@ public class EpoSerDeFilter implements SerDe {
 
 	        EpoBaseEvent ev = null;
 	        try {
-	            if (w instanceof BytesWritable) {
-	                BytesWritable b = (BytesWritable) w;
-	                ev = new EpoBaseEvent(b.getBytes(), false, null);
-	            } else if (w instanceof EpoWritable) {
+	           if (w instanceof EpoWritable) {
 	                EpoWritable ew = (EpoWritable) w;
 	                ev = ew.getEvent();
 	            } else {
@@ -230,66 +227,62 @@ public class EpoSerDeFilter implements SerDe {
 	        if (!ev.isSet(fieldName)) {
 	            return null;
 	        }
-	        try {
-	            switch (type.getCategory()) {
-	                case PRIMITIVE: {
-	                    PrimitiveTypeInfo ptype = (PrimitiveTypeInfo) type;
-	                    switch (ptype.getPrimitiveCategory()) {
-	                        case VOID: {
-	                            return null;
-	                        }
-	                        case BOOLEAN: {
-	                            BooleanWritable r = reuse == null ? new BooleanWritable() : (BooleanWritable) reuse;
-	                            r.set((Boolean) ev.get(fieldName));
-	                            return r;
-	                        }
-	                        case SHORT: {
-	                            ShortWritable r = reuse == null ? new ShortWritable() : (ShortWritable) reuse;
-	                            r.set((Short) ev.get(fieldName));
-	                            return r;
-	                        }
-	                        case INT: {
-	                            IntWritable r = reuse == null ? new IntWritable() : (IntWritable) reuse;
-	                            r.set((Integer) ev.get(fieldName));
-	                            return r;
-	                        }
-	                        case LONG: {
-	                            LongWritable r = reuse == null ? new LongWritable() : (LongWritable) reuse;
-	                            r.set((Long) ev.get(fieldName));
-	                            return r;
-	                        }
-	                        case FLOAT: {
-	                            FloatWritable r = reuse == null ? new FloatWritable() : (FloatWritable) reuse;
-	                            r.set(Float.parseFloat((String) ev.get(fieldName)));
-	                            return r;
-	                        }
-	                        case DOUBLE: {
-	                            DoubleWritable r = reuse == null ? new DoubleWritable() : (DoubleWritable) reuse;
-	                            r.set(Double.parseDouble((String) ev.get(fieldName)));
-	                            return r;
-	                        }
-	                        case STRING: {
-	                            Text r = reuse == null ? new Text() : (Text) reuse;
-	                            r.set(ev.get(fieldName).toString());
-	                            return r;
-	                        }
-	                        default: {
-	                            throw new RuntimeException("Unrecognized type: " + ptype.getPrimitiveCategory());
-	                        }
-	                    }
-	                }
-	                case LIST:
-	                case MAP:
-	                case STRUCT: {
-	                    throw new IOException("List, Map and Struct not supported in LWES");
-	                }
-	                default: {
-	                    throw new RuntimeException("Unrecognized type: " + type.getCategory());
-	                }
-	            }
-	        } catch (NoSuchAttributeException ex) {
-	            throw new IOException(ex);
-	        }
+	        switch (type.getCategory()) {
+			    case PRIMITIVE: {
+			        PrimitiveTypeInfo ptype = (PrimitiveTypeInfo) type;
+			        switch (ptype.getPrimitiveCategory()) {
+			            case VOID: {
+			                return null;
+			            }
+			            case BOOLEAN: {
+			                BooleanWritable r = reuse == null ? new BooleanWritable() : (BooleanWritable) reuse;
+			                r.set((Boolean) ev.get(fieldName));
+			                return r;
+			            }
+			            case SHORT: {
+			                ShortWritable r = reuse == null ? new ShortWritable() : (ShortWritable) reuse;
+			                r.set((Short) ev.get(fieldName));
+			                return r;
+			            }
+			            case INT: {
+			                IntWritable r = reuse == null ? new IntWritable() : (IntWritable) reuse;
+			                r.set((Integer) ev.get(fieldName));
+			                return r;
+			            }
+			            case LONG: {
+			                LongWritable r = reuse == null ? new LongWritable() : (LongWritable) reuse;
+			                r.set((Long) ev.get(fieldName));
+			                return r;
+			            }
+			            case FLOAT: {
+			                FloatWritable r = reuse == null ? new FloatWritable() : (FloatWritable) reuse;
+			                r.set(Float.parseFloat((String) ev.get(fieldName)));
+			                return r;
+			            }
+			            case DOUBLE: {
+			                DoubleWritable r = reuse == null ? new DoubleWritable() : (DoubleWritable) reuse;
+			                r.set(Double.parseDouble((String) ev.get(fieldName)));
+			                return r;
+			            }
+			            case STRING: {
+			                Text r = reuse == null ? new Text() : (Text) reuse;
+			                r.set(ev.get(fieldName).toString());
+			                return r;
+			            }
+			            default: {
+			                throw new RuntimeException("Unrecognized type: " + ptype.getPrimitiveCategory());
+			            }
+			        }
+			    }
+			    case LIST:
+			    case MAP:
+			    case STRUCT: {
+			        throw new IOException("List, Map and Struct not supported in LWES");
+			    }
+			    default: {
+			        throw new RuntimeException("Unrecognized type: " + type.getCategory());
+			    }
+			}
 
 	    }
 
