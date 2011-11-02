@@ -16,6 +16,7 @@ import javax.naming.directory.NoSuchAttributeException;
 import load.hadoop.writable.EpoWritable;
 import load.model.EpoBaseEvent;
 import load.model.EventException;
+import load.model.EventTemplate;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -59,6 +60,7 @@ public class EpoSerDeFilter implements SerDe {
 	    boolean[] columnSortOrderIsDesc;
 	    // holds the results of deserialization
 	    ArrayList<Object> row;
+	    EventTemplate template;
 	    Map<String, List<FieldAndPosition>> fieldsForEpoBaseEventName =
 	            new HashMap<String, List<FieldAndPosition>>();
 	    String allEpoBaseEventName; // in case file has one type of EpoBaseEvent only
@@ -95,8 +97,8 @@ public class EpoSerDeFilter implements SerDe {
 	            LOG.debug("Property: " + s + " value " + tbl.getProperty(s));
 	        }
 
-	        if (tbl.containsKey("lwes.EpoBaseEvent_name")) {
-	            allEpoBaseEventName = tbl.getProperty("lwes.EpoBaseEvent_name");
+	        if (tbl.containsKey("epo.event_name")) {
+	            allEpoBaseEventName = tbl.getProperty("epo.event_name");
 	        }
 
 	        // Create row related objects
@@ -158,8 +160,6 @@ public class EpoSerDeFilter implements SerDe {
 	            fieldsForEpoBaseEventName.get(EpoBaseEventName).add(new FieldAndPosition(fieldName, colNumber));
 	            colNumber++;
 	        }
-
-
 
 	    }
 
