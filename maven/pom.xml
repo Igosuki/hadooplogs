@@ -20,58 +20,7 @@
             </plugin>
         </plugins>
     </build>
-    <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>3.8.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>hadoop</groupId>
-            <artifactId>hadoop-core</artifactId>
-            <version>0.19.2</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>1.1</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>avalon-framework</artifactId>
-                    <groupId>avalon-framework</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>servlet-api</artifactId>
-                    <groupId>javax.servlet</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>logkit</artifactId>
-                    <groupId>logkit</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.lwes</groupId>
-            <artifactId>lwes-java</artifactId>
-            <version>0.2.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.lwes</groupId>
-            <artifactId>journaller-java</artifactId>
-            <version>0.0.6</version>
-        </dependency>
-        <dependency>
-            <groupId>hive</groupId>
-            <artifactId>hive-serde</artifactId>
-            <version>0.6.0_trunk</version>
-        </dependency>
-         <dependency>
-            <groupId>hive</groupId>
-            <artifactId>hive-exec</artifactId>
-            <version>0.6.0_trunk</version>
-        </dependency>
-    </dependencies>
+    
 </project>
 
 
