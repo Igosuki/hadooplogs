@@ -11,8 +11,6 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.naming.directory.NoSuchAttributeException;
-
 import load.hadoop.writable.EpoWritable;
 import load.model.EpoBaseEvent;
 import load.model.EventException;
@@ -44,7 +42,6 @@ import org.apache.hadoop.hive.serde2.typeinfo.TypeInfo;
 import org.apache.hadoop.hive.serde2.typeinfo.TypeInfoFactory;
 import org.apache.hadoop.hive.serde2.typeinfo.TypeInfoUtils;
 import org.apache.hadoop.io.BooleanWritable;
-import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
@@ -57,7 +54,7 @@ public class EpoSerDeFilter implements SerDe {
 	    List<String> columnNames;
 	    List<TypeInfo> columnTypes;
 	    TypeInfo rowTypeInfo;
-	    ObjectInspector rowObjectInspector;
+	    ObjectInspector rowOI;
 	    boolean[] columnSortOrderIsDesc;
 	    // holds the results of deserialization
 	    ArrayList<Object> row;
@@ -105,7 +102,7 @@ public class EpoSerDeFilter implements SerDe {
 	        // Create row related objects
 	        rowTypeInfo = TypeInfoFactory.getStructTypeInfo(columnNames, columnTypes);
 	        //rowObjectInspector = (StructObjectInspector) TypeInfoUtils.getStandardJavaObjectInspectorFromTypeInfo(rowTypeInfo);
-	        rowObjectInspector = (StructObjectInspector) TypeInfoUtils.getStandardWritableObjectInspectorFromTypeInfo(rowTypeInfo);
+	        rowOI = (StructObjectInspector) TypeInfoUtils.getStandardWritableObjectInspectorFromTypeInfo(rowTypeInfo);
 	        row = new ArrayList<Object>(columnNames.size());
 
 	        for (int i = 0; i < columnNames.size(); i++) {
@@ -291,7 +288,7 @@ public class EpoSerDeFilter implements SerDe {
 	    @Override
 	    public ObjectInspector getObjectInspector() throws SerDeException {
 	        LOG.debug("Epo SerDe : getObjectInspector()");
-	        return rowObjectInspector;
+	        return rowOI;
 	    }
 
 	    @Override
