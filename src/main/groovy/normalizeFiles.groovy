@@ -18,8 +18,6 @@ files.each {  file ->
     }
 }
 
-println files
-
 def numFile =0
 inFiles.each { inF ->
     def fileName = inF.name
@@ -130,7 +128,7 @@ loaderFiles?.each {  loaderf ->
 
 }
 
-numFile = 0
+
 Map<String, List> filesTxtBbl = new HashMap<String, List>()
 loaderFiles?.each { file ->
     def fileName = file.name
@@ -146,13 +144,8 @@ loaderFiles?.each { file ->
         while(reader.ready()) {
             def line = reader.readLine()
             def tokens = getTokensFromLine(line)
-            def pubDocId = tokens[0]
-            def XP = tokens[1]
             def batchId = tokens[2]
-            def timeStamp = tokens[3]
             def deliveryInfo = getDeliveryInfoFromLine(line)
-            def year =  getYearFromLine(line)
-            def month = getMonthFromLine(line)
             def deliveryId = "${provider}_${flowType}_${deliveryInfo}"
             def list = filesTxtBbl.get(deliveryId)
             if (list) {
@@ -175,12 +168,55 @@ loaderFiles?.each { file ->
     }
 }
 
-File output = new  File("${outFile}/filesTxtBbl-${numFile}.csv")
-if (output.exists()) output.delete()
-filesTxtBbl.collect { key, value ->
-     def line = "${key};${value.join(';')}\n"
-     output.append(line)
+writeFile("${outFile}/filesTxtBbl.csv",filesTxtBbl)
+
+
+Map<String, List> dates = new HashMap<String, List>()
+def filesDate = inFiles + loaderFiles;
+filesDate.each{ file ->
+    def provider
+    def flowType
+    def date
+    def fileName = file.name
+    if (fileName.contains("loader")) {
+        def tks = fileName.split("_")
+        provider = tks[0].tokenize(".")[0]
+        flowType = tks[0].tokenize(".")[1]
+    }  else {
+        provider = getProviderFromFileName(fileName)
+        flowType = getFLowTypeFromFileName(fileName)
+        date =  fileName.split("_")[0]
+    }
+
+    println "Elaborating file for dates: ${file}"
+    InputStream inputStream = file.newInputStream()
+    Reader reader = inputStream.newReader('UTF-8')
+    if (reader.ready()) reader.readLine()
+    try {
+        def line = reader.readLine()
+        def tokens = getTokensFromLine(line)
+        def batchId = tokens[2]
+        def deliveryInfo = getDeliveryInfoFromLine(line)
+        def deliveryId = "${provider}_${flowType}_${deliveryInfo}"
+        def list = dates.get(deliveryId)
+        if (fileName.contains("loader")) {
+            date=Date.parse('yyyyMMdd',tokens[3]).format('yyyy-MM-dd')
+        }
+        if (list) {
+           list << date
+        } else {
+            list = new ArrayList()
+            list << date
+            dates.put(deliveryId,list)
+        }
+
+    }   catch(e) {
+
+    } finally {
+        reader.close()
+    }
 }
+writeFile("${outFile}/dates.csv",dates)
 
 def getTokensFromFileName(fileName) {
     fileName.split("_")
@@ -218,4 +254,13 @@ def getYearFromLine(line) {
 def getMonthFromLine(line) {
     tokens = getTokensFromLine(line)
     tokens[-1].tokenize('_')[0][4..5]
+}
+
+def writeFile(String fileName, Map values){
+    File output = new  File(fileName)
+    if (output.exists()) output.delete()
+    values.collect { key, value ->
+        def line = "${key};${value.join(';')}\n"
+        output.append(line)
+    }
 }
