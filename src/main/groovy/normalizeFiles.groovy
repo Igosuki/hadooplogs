@@ -178,8 +178,10 @@ loaderFiles?.each { file ->
 File output = new  File("${outFile}/filesTxtBbl-${numFile}.csv")
 if (output.exists()) output.delete()
 filesTxtBbl.collect { key, value ->
-     output.append()
+     def line = "${key};${value.join(';')}\n"
+     output.append(line)
 }
+
 def getTokensFromFileName(fileName) {
     fileName.split("_")
 }
