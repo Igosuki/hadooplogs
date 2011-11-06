@@ -25,7 +25,7 @@ public class HiveJdbcClientTest {
 			System.exit(1);
 		}
 		Connection con = DriverManager.getConnection(
-				"jdbc:hive://sep347.sesame.infotel.com:9999/default", "", "");
+				"jdbc:hive://sep347.sesame.infotel.com:10000/default", "", "");
 		Statement stmt = con.createStatement();
 		String tableName = "testhivedrivertable";
 		//drop table if it exists
@@ -34,6 +34,7 @@ public class HiveJdbcClientTest {
 		ResultSet res = stmt.executeQuery("create table " + tableName 
 				+ " (key int, value string, value2 string, value3 string, value4 string, value5 string)");
 		// show tables
+		System.out.println(res);
 		String sql = "show tables '" + tableName + "'";
 		printrun(sql);
 		res = execsql(stmt, sql);

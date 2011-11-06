@@ -2,7 +2,6 @@ package load.hadoop.mapred;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 
 import load.hadoop.io.EpoBufferedReader;
 import load.hadoop.writable.EpoWritable;
@@ -24,10 +23,6 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.JobConfigurable;
 import org.apache.hadoop.mapred.RecordReader;
 import org.apache.hadoop.mapred.Reporter;
-import org.lwes.Event;
-import org.lwes.hadoop.EventWritable;
-import org.lwes.hadoop.io.DatagramPacketInputStream;
-import org.lwes.hadoop.io.JournalInputFormat.JournalRecordReader;
 
 public class BasicEpoInputFormat extends
 		FileInputFormat<LongWritable, EpoWritable> implements JobConfigurable {
@@ -109,7 +104,7 @@ public class BasicEpoInputFormat extends
 			if (ev != null) {
 				value.setEvent(ev);
 				
-				pos += ev.get.length;
+				pos += ev.serialize().length;
 
 				key.set(pos);
 
