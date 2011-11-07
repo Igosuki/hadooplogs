@@ -7,7 +7,7 @@ public final class SerDeStringUtils {
 	private SerDeStringUtils() { }
 	
 	public static final boolean isNull(String field) {
-		return !("".equals(field) || "null".equals(field)); 
+		return "".equals(field) || "null".equals(field); 
 	}
 	
 	// Parsing methods use wrapper classes only for now 
