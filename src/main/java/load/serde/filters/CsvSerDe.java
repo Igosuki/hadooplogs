@@ -52,6 +52,11 @@ public class CsvSerDe implements SerDe {
 	private List<String> columnNames;
 	
 	/**
+	 * Column Names in the table
+	 */
+	private List<Object> columnDefaults;
+	
+	/**
 	 * Column Types in the table
 	 */
 	private List<TypeInfo> columnTypes;
@@ -87,7 +92,19 @@ public class CsvSerDe implements SerDe {
 		addSepChar = StringUtils.isBlank(addChar) ? addSepChar : addChar; 
 		
 		assert columnNames.size() == columnTypes.size();
+		
 		nbColumns = columnNames.size();
+
+		String colDefaults = tprops.getProperty(TableProps.COLUMN_DEFAULTS);
+		if(!StringUtils.isBlank(colDefaults)) {
+			List<String> colDefaultsProp = Arrays.asList(colDefaults.split(",")); 
+			if(colDefaultsProp.size() == columnNames.size()) {
+				columnDefaults = new ArrayList<Object>(nbColumns);
+				for (int i = 0; i < nbColumns; i++) {
+					columnDefaults.add(deserializeField(colDefaultsProp.get(i), columnTypes.get(i)));
+				}
+			}
+		}
 		
 		// Create Object Inspectors for each col
 		List<ObjectInspector> columnOIs = new ArrayList<ObjectInspector>(nbColumns);
@@ -110,10 +127,11 @@ public class CsvSerDe implements SerDe {
 	
 	@Override
 	public Object deserialize(Writable arg0) throws SerDeException {
+		
 		Text rowText = (Text) arg0;
 		LOG.debug("Deserializing row : " + rowText.toString());
 
-		String[] cols = rowText.toString().split(";");
+		String[] fields = rowText.toString().split(";");
 
 		// Simple iteration through columns
 		String colName;
@@ -123,40 +141,7 @@ public class CsvSerDe implements SerDe {
 			TypeInfo ti = columnTypes.get(c);
 
 			try {
-				// Get type-safe JSON values
-				if (SerDeStringUtils.isNull(cols[c])) {
-					value = null;
-				} else if (ti.getTypeName().equalsIgnoreCase(
-						Constants.DOUBLE_TYPE_NAME)) {
-					value = SerDeStringUtils.getDouble(cols[c]);
-				} else if (ti.getTypeName().equalsIgnoreCase(
-						Constants.BIGINT_TYPE_NAME)) {
-					value = SerDeStringUtils.getLong(cols[c]);
-				} else if (ti.getTypeName().equalsIgnoreCase(
-						Constants.INT_TYPE_NAME)) {
-					value = SerDeStringUtils.getInt(cols[c]);
-				} else if (ti.getTypeName().equalsIgnoreCase(
-						Constants.TINYINT_TYPE_NAME)) {
-					value = Byte.valueOf(SerDeStringUtils.getString(cols[c]));
-				} else if (ti.getTypeName().equalsIgnoreCase(
-						Constants.FLOAT_TYPE_NAME)) {
-					value = Float.valueOf(SerDeStringUtils.getString(cols[c]));
-				} else if (ti.getTypeName().equalsIgnoreCase(
-						Constants.BOOLEAN_TYPE_NAME)) {
-					value = SerDeStringUtils.getBoolean(cols[c]);
-				} else if (ti.getTypeName().equalsIgnoreCase(
-						Constants.STRING_TYPE_NAME)) {
-					value = SerDeStringUtils.getString(cols[c]);
-				} else if (ti.getTypeName()
-						.startsWith(Constants.LIST_TYPE_NAME)) {
-					// Parse this 
-					String[] newarr = cols[c].split(addSepChar);
-					value = newarr;
-
-				} else {
-					// Unknown type but there is a value
-					value = cols[c];
-				}
+				value = deserializeField(fields[c], ti);
 			} catch (EventException e) {
 				// Exception, set to null and skip
 				if (LOG.isDebugEnabled()) {
@@ -169,6 +154,46 @@ public class CsvSerDe implements SerDe {
 			row.set(c, value);
 		}
 		return row;
+	}
+
+
+	private Object deserializeField(String val, TypeInfo ti) {
+		Object value;
+		// Get type-safe values
+		if (SerDeStringUtils.isNull(val)) {
+			value = null;
+		} else if (ti.getTypeName().equalsIgnoreCase(
+				Constants.DOUBLE_TYPE_NAME)) {
+			value = SerDeStringUtils.getDouble(val);
+		} else if (ti.getTypeName().equalsIgnoreCase(
+				Constants.BIGINT_TYPE_NAME)) {
+			value = SerDeStringUtils.getLong(val);
+		} else if (ti.getTypeName().equalsIgnoreCase(
+				Constants.INT_TYPE_NAME)) {
+			value = SerDeStringUtils.getInt(val);
+		} else if (ti.getTypeName().equalsIgnoreCase(
+				Constants.TINYINT_TYPE_NAME)) {
+			value = Byte.valueOf(SerDeStringUtils.getString(val));
+		} else if (ti.getTypeName().equalsIgnoreCase(
+				Constants.FLOAT_TYPE_NAME)) {
+			value = Float.valueOf(SerDeStringUtils.getString(val));
+		} else if (ti.getTypeName().equalsIgnoreCase(
+				Constants.BOOLEAN_TYPE_NAME)) {
+			value = SerDeStringUtils.getBoolean(val);
+		} else if (ti.getTypeName().equalsIgnoreCase(
+				Constants.STRING_TYPE_NAME)) {
+			value = SerDeStringUtils.getString(val);
+		} else if (ti.getTypeName()
+				.startsWith(Constants.LIST_TYPE_NAME)) {
+			// Parse this 
+			String[] newarr = val.split(addSepChar);
+			value = newarr;
+
+		} else {
+			// Unknown type but there is a value
+			value = val;
+		}
+		return value;
 	}
 
     // Reusable objects (it's just text after all)
@@ -185,74 +210,75 @@ public class CsvSerDe implements SerDe {
         // for each field supplied by object inspector
         for (int i = 0; i < fields.size(); i++) {
             // for each column, set the correspondent event attribute
-            String fieldName = fields.get(i).getFieldName();
+            StructField structField = fields.get(i);
+			String fieldName = structField.getFieldName();
+			Object fdata = soi.getStructFieldData(o, structField);
             try {
             	LOG.debug("Serializing column" + fieldName);
-
+            	ObjectInspector currOI = structField.getFieldObjectInspector();
                 // if null, the field is null
                 if (o == null) {
                     return null;
                 } else {
 
-	                switch (oi.getCategory()) {
+	                switch (currOI.getCategory()) {
 	                    case PRIMITIVE: {
-	                        PrimitiveObjectInspector poi = (PrimitiveObjectInspector) oi;
+	                        PrimitiveObjectInspector poi = (PrimitiveObjectInspector) currOI;
 	                        switch (poi.getPrimitiveCategory()) {
 	                            case VOID: {
 	                                break;
 	                            }
 	                            case BOOLEAN: {
 	                                BooleanObjectInspector boi = (BooleanObjectInspector) poi;
-	                                boolean v = ((BooleanObjectInspector) poi).get(o);
+	                                boolean v = ((BooleanObjectInspector) poi).get(fdata);
 	                                sb.append(Boolean.toString(v));
 	                                sb.append(";");
 	                                break;
 	                            }
 	                            case BYTE: {
 	                                ByteObjectInspector boi = (ByteObjectInspector) poi;
-	                                byte v = boi.get(o);
+	                                byte v = boi.get(fdata);
 	                                sb.append(String.valueOf(v));
 	                                sb.append(";");
 	                                break;
 	                            }
 	                            case SHORT: {
 	                                ShortObjectInspector spoi = (ShortObjectInspector) poi;
-	                                short v = spoi.get(o);
+	                                short v = spoi.get(fdata);
 	                                sb.append(Short.toString(v));
 	                                sb.append(";");
 	                                break;
 	                            }
 	                            case INT: {
 	                                IntObjectInspector ioi = (IntObjectInspector) poi;
-	                                int v = ioi.get(o);
+	                                int v = ioi.get(fdata);
 	                                sb.append(Integer.toString(v));
 	                                sb.append(";");
 	                                break;
 	                            }
 	                            case LONG: {
 	                                LongObjectInspector loi = (LongObjectInspector) poi;
-	                                long v = loi.get(o);
+	                                long v = loi.get(fdata);
 	                                sb.append(Long.toString(v));
 	                                sb.append(";");
 	                                break;
 	                            }
 	                            case FLOAT: {
 	                                FloatObjectInspector foi = (FloatObjectInspector) poi;
-	                                float v = foi.get(o);
+	                                float v = foi.get(fdata);
 	                                sb.append(Float.toString(v));
 	                                sb.append(";");
 	                                break;
 	                            }
 	                            case DOUBLE: {
 	                                DoubleObjectInspector doi = (DoubleObjectInspector) poi;
-	                                double v = doi.get(o);
+	                                double v = doi.get(fdata);
 	                                sb.append(Double.toString(v));
 	                                sb.append(";");
 	                                break;
 	                            }
 	                            case STRING: {
-	                                StringObjectInspector stringoi = (StringObjectInspector) poi;
-	                                Text t = stringoi.getPrimitiveWritableObject(o);
+	                                Text t = ((StringObjectInspector) poi).getPrimitiveWritableObject(fdata);
 	                                sb.append(t.toString());
 	                                sb.append(";");
 	                                break;
@@ -261,14 +287,15 @@ public class CsvSerDe implements SerDe {
 	                                throw new RuntimeException("Unrecognized type: " + poi.getPrimitiveCategory());
 	                            }
 	                        }
+	                        break;
 	                    }
 	                    case LIST:
 	                    case MAP:
 	                    case STRUCT: {
-	                        throw new RuntimeException("Complex types not supported : " + oi.getCategory());
+	                        throw new RuntimeException("Complex types not supported : " + currOI.getCategory());
 	                    }
 	                    default: {
-	                        throw new RuntimeException("Unrecognized type: " + oi.getCategory());
+	                        throw new RuntimeException("Unrecognized type: " + currOI.getCategory());
 	                    }
 	                }
 	                
@@ -279,7 +306,7 @@ public class CsvSerDe implements SerDe {
                         + " in SerDe serialize", ex);
             }
         }
-        
+        serialized.set(sb.toString());
         return serialized;
 	}
 	
