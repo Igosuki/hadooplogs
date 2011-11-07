@@ -10,6 +10,7 @@ public final class Constants {
 		public static final String COLUMNS = "columns.names";
 		public static final String COLUMN_TYPES = "columns.types";
 		public static final String ADD_SEP_CHAR = "columns.addsep";
+		public static final String COLUMN_DEFAULTS = "columns.default";
 		
 		// Type names constants
 		public static final String DOUBLE = "double";
@@ -18,5 +19,6 @@ public final class Constants {
 		public static final String TIMESTAMP = "timestamp";
 		public static final String BOOLEAN = "boolean";
 		public static final String FLOAT = "float";
+		
 	}
 }
