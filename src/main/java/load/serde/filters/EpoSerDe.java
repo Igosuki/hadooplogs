@@ -48,9 +48,9 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 
-public class EpoSerDeFilter implements SerDe {
+public class EpoSerDe implements SerDe {
 
-	 public static final Log LOG = LogFactory.getLog(EpoSerDeFilter.class.getName());
+	 public static final Log LOG = LogFactory.getLog(EpoSerDe.class.getName());
 	    List<String> columnNames;
 	    List<TypeInfo> columnTypes;
 	    TypeInfo rowTypeInfo;
@@ -198,7 +198,7 @@ public class EpoSerDeFilter implements SerDe {
 	                            row.get(fp.getPosition()))); // reusable object
 	                } catch (IOException ex) {
 	                    row.set(fp.getPosition(), null);
-	                    Logger.getLogger(EpoSerDeFilter.class.getName()).log(Level.SEVERE, null, ex);
+	                    Logger.getLogger(EpoSerDe.class.getName()).log(Level.SEVERE, null, ex);
 	                    continue;
 	                }
 	            }
