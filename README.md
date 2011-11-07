@@ -15,3 +15,6 @@ select custom_udf(title) from titles group by custom_udf(title);
 copy the jar on a local path on the server and execute :</p>
 <pre><code>add jar /path/to/jar/jar_name.jar;</code></pre>
  
+<p>To execute a script file simply</p>
+<pre><code>hive -f script</code></pre>
+ 
