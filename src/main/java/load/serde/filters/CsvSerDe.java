@@ -18,7 +18,17 @@ import org.apache.hadoop.hive.serde2.SerDe;
 import org.apache.hadoop.hive.serde2.SerDeException;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorFactory;
+import org.apache.hadoop.hive.serde2.objectinspector.PrimitiveObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.StructField;
 import org.apache.hadoop.hive.serde2.objectinspector.StructObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.primitive.BooleanObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.primitive.ByteObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.primitive.DoubleObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.primitive.FloatObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.primitive.IntObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.primitive.LongObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.primitive.ShortObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.primitive.StringObjectInspector;
 import org.apache.hadoop.hive.serde2.typeinfo.TypeInfo;
 import org.apache.hadoop.hive.serde2.typeinfo.TypeInfoUtils;
 import org.apache.hadoop.io.Text;
@@ -161,11 +171,116 @@ public class CsvSerDe implements SerDe {
 		return row;
 	}
 
+    // Reusable objects (it's just text after all)
+    Text serialized = new Text();
+    StringBuilder sb = new StringBuilder();
+    
 	@Override
-	public Writable serialize(Object arg0, ObjectInspector arg1)
+	public Writable serialize(Object o, ObjectInspector oi)
 			throws SerDeException {
-		// TODO Auto-generated method stub
-		return null;
+
+        StructObjectInspector soi = (StructObjectInspector) oi;
+        List<? extends StructField> fields = soi.getAllStructFieldRefs();
+        
+        // for each field supplied by object inspector
+        for (int i = 0; i < fields.size(); i++) {
+            // for each column, set the correspondent event attribute
+            String fieldName = fields.get(i).getFieldName();
+            try {
+            	LOG.debug("Serializing column" + fieldName);
+
+                // if null, the field is null
+                if (o == null) {
+                    return null;
+                } else {
+
+	                switch (oi.getCategory()) {
+	                    case PRIMITIVE: {
+	                        PrimitiveObjectInspector poi = (PrimitiveObjectInspector) oi;
+	                        switch (poi.getPrimitiveCategory()) {
+	                            case VOID: {
+	                                break;
+	                            }
+	                            case BOOLEAN: {
+	                                BooleanObjectInspector boi = (BooleanObjectInspector) poi;
+	                                boolean v = ((BooleanObjectInspector) poi).get(o);
+	                                sb.append(Boolean.toString(v));
+	                                sb.append(";");
+	                                break;
+	                            }
+	                            case BYTE: {
+	                                ByteObjectInspector boi = (ByteObjectInspector) poi;
+	                                byte v = boi.get(o);
+	                                sb.append(String.valueOf(v));
+	                                sb.append(";");
+	                                break;
+	                            }
+	                            case SHORT: {
+	                                ShortObjectInspector spoi = (ShortObjectInspector) poi;
+	                                short v = spoi.get(o);
+	                                sb.append(Short.toString(v));
+	                                sb.append(";");
+	                                break;
+	                            }
+	                            case INT: {
+	                                IntObjectInspector ioi = (IntObjectInspector) poi;
+	                                int v = ioi.get(o);
+	                                sb.append(Integer.toString(v));
+	                                sb.append(";");
+	                                break;
+	                            }
+	                            case LONG: {
+	                                LongObjectInspector loi = (LongObjectInspector) poi;
+	                                long v = loi.get(o);
+	                                sb.append(Long.toString(v));
+	                                sb.append(";");
+	                                break;
+	                            }
+	                            case FLOAT: {
+	                                FloatObjectInspector foi = (FloatObjectInspector) poi;
+	                                float v = foi.get(o);
+	                                sb.append(Float.toString(v));
+	                                sb.append(";");
+	                                break;
+	                            }
+	                            case DOUBLE: {
+	                                DoubleObjectInspector doi = (DoubleObjectInspector) poi;
+	                                double v = doi.get(o);
+	                                sb.append(Double.toString(v));
+	                                sb.append(";");
+	                                break;
+	                            }
+	                            case STRING: {
+	                                StringObjectInspector stringoi = (StringObjectInspector) poi;
+	                                Text t = stringoi.getPrimitiveWritableObject(o);
+	                                sb.append(t.toString());
+	                                sb.append(";");
+	                                break;
+	                            }
+	                            default: {
+	                                throw new RuntimeException("Unrecognized type: " + poi.getPrimitiveCategory());
+	                            }
+	                        }
+	                    }
+	                    case LIST:
+	                    case MAP:
+	                    case STRUCT: {
+	                        throw new RuntimeException("Complex types not supported : " + oi.getCategory());
+	                    }
+	                    default: {
+	                        throw new RuntimeException("Unrecognized type: " + oi.getCategory());
+	                    }
+	                }
+	                
+                }
+            } catch (EventException ex) {
+                LOG.debug("Cannot set field " + fieldName, ex);
+                throw new SerDeException("Can't set field " + fieldName
+                        + " in SerDe serialize", ex);
+            }
+        }
+        
+        return serialized;
 	}
 	
 	/**
