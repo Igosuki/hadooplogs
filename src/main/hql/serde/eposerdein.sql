@@ -6,7 +6,9 @@ LOCATION '/home/sesame/src/hivetests/epo/in'
 TBLPROPERTIES (
 'columns.types'='string,string,string',
 'columns.names'='publisher_docid,batchid_in,time_stamp',
+'columns.transform.names'='ieee,, publisher_docid,batchid_in,time_stamp',
 'columns.addsep'='_'
+'columns.default'=''
 )
 ;
 select * from epo_normalized_table limit 10;
