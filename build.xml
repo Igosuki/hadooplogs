@@ -5,6 +5,7 @@
     </description>
   <!-- set global properties for this build -->
   <property name="src" location="src/main/java"/>
+  <property name="res" location="src/main/resources" />
   <property name="build" location="build"/>
   <property name="dist"  location="dist"/>
 
@@ -19,6 +20,9 @@
         description="compile the source "  >
     <!-- Compile the java code from ${src} into ${build} -->
     <javac srcdir="${src}" destdir="${build}" />
+  	<copy todir="${build}/">
+  		<fileset dir="${res}/properties/jobs" />
+  	</copy>
   </target>
 
   <target name="dist" depends="compile"
@@ -26,7 +30,7 @@
     <!-- Create the distribution directory -->
     <mkdir dir="${dist}/lib"/>
 
-    <!-- Put everything in ${build} into the MyProject-${DSTAMP}.jar file -->
+    <!-- Put everything in ${build} into the .jar file -->
     <jar jarfile="${dist}/lib/${ant.project.name}.jar" basedir="${build}"/>
   </target>
 
