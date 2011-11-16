@@ -10,5 +10,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Hadoop_Core"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Hive"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="C:/Users/g_ba/Downloads/juel-2.2.4/juel-2.2.4/juel-2.2.4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/g_ba/Downloads/trang-20090818/trang-20090818/trang.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

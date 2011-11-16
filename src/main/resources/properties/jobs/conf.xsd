@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:element name="configuration">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="parseconf"/>
+        <xs:element ref="outconf"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="parseconf">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="content"/>
+        <xs:element ref="filename"/>
+        <xs:element ref="constants"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="content">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="parse"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="filename">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="parse"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="constants">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="unbounded" ref="constant"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="constant">
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:NCName">
+          <xs:attribute name="name" use="required" type="xs:NCName"/>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="outconf">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="assemblies"/>
+        <xs:element ref="expression"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="assemblies">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="assembly"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="assembly">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="expression"/>
+      </xs:sequence>
+      <xs:attribute name="name" use="required" type="xs:NCName"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="parse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="1" ref="subparses"/>
+      </xs:sequence>
+      <xs:attribute name="delim"/>
+      <xs:attribute name="index" type="xs:integer"/>
+      <xs:attribute name="name" type="xs:NCName"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="subparses">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="parse"/>
+      </xs:sequence>
+      <xs:attribute name="natural" type="xs:boolean"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="expression" type="xs:string"/>
+</xs:schema>

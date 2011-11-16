@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Java EL is expected for expressions -->
+<configuration>
+	<parseconf>
+		<content>
+			<parse delim=";">
+				<subparses>
+					<parse name="pubDocId" delim="_">
+						<subparses>
+							<parse name="deliveryInfo" />
+						</subparses>
+					</parse>
+					<parse name="batchId" />
+					<parse name="timestamp">
+						<subparses>
+							<parse delim="_">
+								<subparses>
+									<parse delim="0..3..4">
+										<subparses>
+											<parse name="year" />
+											<parse name="month" />
+										</subparses>
+									</parse>
+								</subparses>
+							</parse>
+						</subparses>
+					</parse>
+				</subparses>
+			</parse>
+		</content>
+		<filename>
+			<parse delim="_">
+				<subparses natural="false">
+					<parse index="2" delim=".">
+						<subparses>
+							<parse name="provider" />
+							<parse name="flowtype" />
+						</subparses>
+					</parse>
+				</subparses>
+			</parse>
+		</filename>
+		<constants>
+			<constant name="nullval">null</constant>
+		</constants>
+	</parseconf>
+	<outconf>
+		<assemblies>
+			<assembly name="deliveryId">
+				<expression>${provider}_${flowType}_${deliveryInfo}</expression>
+			</assembly>
+		</assemblies>
+		<expression>
+			"${deliveryId};${provider};${flowType};${pubDocId};${batchId};IN;${timestamp};${deliveryInfo};${year};${month};null\n"
+		</expression>
+	</outconf>
+</configuration>
