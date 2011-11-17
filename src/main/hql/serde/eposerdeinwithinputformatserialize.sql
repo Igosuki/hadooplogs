@@ -10,7 +10,7 @@ STORED AS INPUTFORMAT 'load.hadoop.mapred.CsvInputFormat' OUTPUTFORMAT 'load.had
 LOCATION '/var/hadoop/data/epoin'
 TBLPROPERTIES (
 'columns.types'='string,string,string,string,string,string,string,string,string,string,string',
-'columns.names'='delivery_id, provider, flowtype, publisher_doc_id, batch_id, status, tstamp, delivery, year, month, XP'
+'columns.names'='delivery_id,provider,flowtype,publisher_doc_id,batch_id,status,tstamp,delivery,year,month,XP'
 )
 ;
 select * from epont limit 10;
