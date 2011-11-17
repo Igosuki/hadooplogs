@@ -81,7 +81,7 @@ public class CsvRecordReader implements RecordReader<LongWritable, Text> {
 		String formatProperties = null;
 		for (Entry<String, String> entry : manualFileNameConf.entrySet()) {
 			if (file.getName().endsWith(entry.getKey())) {
-				formatProperties = entry.getValue();
+				formatProperties = entry.getValue()+".xml";
 				break;
 			}
 		}
@@ -93,7 +93,7 @@ public class CsvRecordReader implements RecordReader<LongWritable, Text> {
 		if ((isNormalizing = !StringUtils.isBlank(formatProperties))) {
 			//Try to get them from a properties file in the classpath
 			this.ctxt = new ConfigurationContext(split.getPath().getName(), 
-				getClass().getClassLoader().getResourceAsStream(formatProperties + ".xml")
+				getClass().getClassLoader().getResourceAsStream(formatProperties)
 			);
 			LOG.info("Reading properties file from classpath : " + formatProperties);
 		} 
