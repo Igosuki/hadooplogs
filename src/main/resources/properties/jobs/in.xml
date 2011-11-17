@@ -11,16 +11,12 @@
 						</subparses>
 					</parse>
 					<parse name="batchId" />
-					<parse name="timestamp">
+					<parse name="timestamp" delim="_" >
 						<subparses>
-							<parse delim="_">
+							<parse ranges="[0..3,4..5]">
 								<subparses>
-									<parse delim="0..3..4">
-										<subparses>
-											<parse name="year" />
-											<parse name="month" />
-										</subparses>
-									</parse>
+									<parse name="year" />
+									<parse name="month" />
 								</subparses>
 							</parse>
 						</subparses>
@@ -34,7 +30,7 @@
 					<parse index="2" delim=".">
 						<subparses>
 							<parse name="provider" />
-							<parse name="flowtype" />
+							<parse name="flowType" />
 						</subparses>
 					</parse>
 				</subparses>
@@ -50,8 +46,6 @@
 				<expression>${provider}_${flowType}_${deliveryInfo}</expression>
 			</assembly>
 		</assemblies>
-		<expression>
-			"${deliveryId};${provider};${flowType};${pubDocId};${batchId};IN;${timestamp};${deliveryInfo};${year};${month};null\n"
-		</expression>
+		<expression>${deliveryId};${provider};${flowType};${pubDocId};${batchId};IN;${timestamp};${deliveryInfo};${year};${month};null</expression>
 	</outconf>
 </configuration>

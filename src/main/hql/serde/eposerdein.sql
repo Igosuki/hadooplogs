@@ -1,8 +1,8 @@
 ADD JAR /home/sesame/src/hivejars/eposerde.jar;
-DROP TABLE IF EXISTS epo_normalized_table;
-CREATE EXTERNAL TABLE IF NOT EXISTS epo_normalized_table (field1 string, field2 string, field3 string)
+DROP TABLE IF EXISTS epont;
+CREATE EXTERNAL TABLE IF NOT EXISTS epont (field1 string, field2 string, field3 string)
 ROW FORMAT SERDE 'load.serde.filters.CsvSerDe'  
-LOCATION '/home/sesame/src/hivetests/epo/in'
+LOCATION '/var/hadoop/data/epoin'
 TBLPROPERTIES (
 'columns.types'='string,string,string',
 'columns.names'='publisher_docid,batchid_in,time_stamp',
@@ -11,4 +11,4 @@ TBLPROPERTIES (
 'columns.default'=''
 )
 ;
-select * from epo_normalized_table limit 10;
+select * from epont limit 10;

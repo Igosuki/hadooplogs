@@ -1,43 +1,63 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="eposerde" default="dist" basedir="." >
-    <description>
+	<description>
         simple example build file
     </description>
-  <!-- set global properties for this build -->
-  <property name="src" location="src/main/java"/>
-  <property name="res" location="src/main/resources" />
-  <property name="build" location="build"/>
-  <property name="dist"  location="dist"/>
+	<!-- set global properties for this build -->
+	<property name="src" location="src/main/java"/>
+	<property name="res" location="src/main/resources" />
+	<property name="build" location="build"/>
+	<property name="dist"  location="dist"/>
+	<property name="hivedir" location="C:/epo/hive-0.7.1" />
+	<property name="hadoopdir" location="C:\epo\hadoop-0.20.205.0" />
 
-  <target name="init">
-    <!-- Create the time stamp -->
-    <tstamp/>
-    <!-- Create the build directory structure used by compile -->
-    <mkdir dir="${build}"/>
-  </target>
+	<target name="init">
+		<!-- Create the time stamp -->
+		<tstamp/>
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${build}"/>
+	</target>
 
-  <target name="compile" depends="init"
+	
+	<target name="compile" depends="init"
         description="compile the source "  >
-    <!-- Compile the java code from ${src} into ${build} -->
-    <javac srcdir="${src}" destdir="${build}" />
-  	<copy todir="${build}/">
-  		<fileset dir="${res}/properties/jobs" />
-  	</copy>
-  </target>
+		
+		<path id="build-classpath">
+			<pathelement path="${classpath}" />
+			<fileset dir="lib">
+				<include name="**/*.jar"/>
+			</fileset>
+			<pathelement path="${classpath}" />
+			<fileset dir="${hivedir}/lib/">
+				<include name="**/*.jar" />
+			</fileset>
+			<fileset dir="${hadoopdir}">
+				<include name="**/*.jar" />
+			</fileset>
+		</path>
 
-  <target name="dist" depends="compile"
+		<!-- Compile the java code from ${src} into ${build} -->
+		<javac srcdir="${src}" destdir="${build}" target="1.6">
+			<classpath refid="build-classpath" />
+		</javac>
+		<copy todir="${build}/">
+			<fileset dir="${res}/properties/jobs" />
+		</copy>
+	</target>
+
+	<target name="dist" depends="compile"
         description="generate the distribution" >
-    <!-- Create the distribution directory -->
-    <mkdir dir="${dist}/lib"/>
+		<!-- Create the distribution directory -->
+		<mkdir dir="${dist}/lib"/>
 
-    <!-- Put everything in ${build} into the .jar file -->
-    <jar jarfile="${dist}/lib/${ant.project.name}.jar" basedir="${build}"/>
-  </target>
+		<!-- Put everything in ${build} into the .jar file -->
+		<jar jarfile="${dist}/lib/${ant.project.name}.jar" basedir="${build}"/>
+	</target>
 
-  <target name="clean"
+	<target name="clean"
         description="clean up" >
-    <!-- Delete the ${build} and ${dist} directory trees -->
-    <delete dir="${build}"/>
-    <delete dir="${dist}"/>
-  </target>
+		<!-- Delete the ${build} and ${dist} directory trees -->
+		<delete dir="${build}"/>
+		<delete dir="${dist}"/>
+	</target>
 </project>

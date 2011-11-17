@@ -95,16 +95,16 @@ public class CsvSerDe implements SerDe {
 		
 		nbColumns = columnNames.size();
 
-		String colDefaults = tprops.getProperty(TableProps.COLUMN_DEFAULTS);
-		if(!StringUtils.isBlank(colDefaults)) {
-			List<String> colDefaultsProp = Arrays.asList(colDefaults.split(",")); 
-			if(colDefaultsProp.size() == columnNames.size()) {
-				columnDefaults = new ArrayList<Object>(nbColumns);
-				for (int i = 0; i < nbColumns; i++) {
-					columnDefaults.add(deserializeField(colDefaultsProp.get(i), columnTypes.get(i)));
-				}
-			}
-		}
+//		String colDefaults = tprops.getProperty(TableProps.COLUMN_DEFAULTS);
+//		if(!StringUtils.isBlank(colDefaults)) {
+//			List<String> colDefaultsProp = Arrays.asList(colDefaults.split(",")); 
+//			if(colDefaultsProp.size() == columnNames.size()) {
+//				columnDefaults = new ArrayList<Object>(nbColumns);
+//				for (int i = 0; i < nbColumns; i++) {
+//					columnDefaults.add(deserializeField(colDefaultsProp.get(i), columnTypes.get(i)));
+//				}
+//			}
+//		}
 		
 		// Create Object Inspectors for each col
 		List<ObjectInspector> columnOIs = new ArrayList<ObjectInspector>(nbColumns);

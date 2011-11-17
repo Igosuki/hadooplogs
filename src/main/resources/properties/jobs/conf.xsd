@@ -50,7 +50,7 @@
   <xs:element name="outconf">
     <xs:complexType>
       <xs:sequence>
-        <xs:element ref="assemblies"/>
+        <xs:element ref="assemblies" />
         <xs:element ref="expression"/>
       </xs:sequence>
     </xs:complexType>
@@ -58,7 +58,7 @@
   <xs:element name="assemblies">
     <xs:complexType>
       <xs:sequence>
-        <xs:element ref="assembly"/>
+        <xs:element ref="assembly" minOccurs="0" maxOccurs="unbounded" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -76,7 +76,9 @@
         <xs:element minOccurs="0" maxOccurs="1" ref="subparses"/>
       </xs:sequence>
       <xs:attribute name="delim"/>
+      <xs:attribute name="ranges"/>
       <xs:attribute name="index" type="xs:integer"/>
+      <xs:attribute name="regex" type="xs:boolean" default="false" />
       <xs:attribute name="name" type="xs:NCName"/>
     </xs:complexType>
   </xs:element>
@@ -85,7 +87,7 @@
       <xs:sequence>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="parse"/>
       </xs:sequence>
-      <xs:attribute name="natural" type="xs:boolean"/>
+      <xs:attribute name="natural" type="xs:boolean" default="true" />
     </xs:complexType>
   </xs:element>
   <xs:element name="expression" type="xs:string"/>
