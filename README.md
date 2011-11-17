@@ -18,3 +18,11 @@ copy the jar on a local path on the server and execute :</p>
 <p>To execute a script file simply</p>
 <pre><code>hive -f script</code></pre>
  
+<p>To build the jar</p>
+<pre>ant clean dist</pre>
+ 
+<p>To execute the project's scripts and see the log</p>
+<pre>hive -f scriptname -hiveconf hive.root.logger=DEBUG,console</pre>
+<pre>Things to have on the local system : the ant built jar file, the files </pre>
+<pre>If the files are external, you don't need to do anything, if however they are internal (meaning hive will store them on the hdfs) : </pre>
+<pre><code>hadoop dfs -mkdir /the/path/to/store</code></pre>
