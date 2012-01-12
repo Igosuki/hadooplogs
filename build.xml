@@ -8,8 +8,8 @@
 	<property name="res" location="src/main/resources" />
 	<property name="build" location="build"/>
 	<property name="dist"  location="dist"/>
-	<property name="hivedir" location="C:/epo/hive-0.7.1" />
-	<property name="hadoopdir" location="C:\epo\hadoop-0.20.205.0" />
+	<property name="hivedir" location="/Users/hadoophive/hadoop/hive" />
+	<property name="hadoopdir" location="/Users/hadoophive/hadoop/hadoop" />
 
 	<target name="init">
 		<!-- Create the time stamp -->
